@@ -25,7 +25,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /register:
+ * /api/register:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
@@ -72,7 +72,7 @@ router.post("/register", createUser);
 
 /**
  * @swagger
- * /login:
+ * /api/login:
  *   post:
  *     summary: Login a user and get a token
  *     tags: [Users]
@@ -115,7 +115,7 @@ router.post("/login", login);
 // Authenticated routes
 /**
  * @swagger
- * /users:
+ * /api/users:
  *   get:
  *     summary: Get all users
  *     tags: [Users]
@@ -152,7 +152,7 @@ router.get("/users", authenticateToken, getUsers);
 
 /**
  * @swagger
- * /user-info:
+ * /api/user-info:
  *   get:
  *     summary: Get current user information
  *     tags: [Users]
@@ -191,7 +191,7 @@ router.get("/user-info", authenticateToken, getUserInfo);
 
 /**
  * @swagger
- * /change-password:
+ * /api/change-password:
  *   post:
  *     summary: Change user password
  *     tags: [Users]
@@ -232,7 +232,7 @@ router.post("/change-password", authenticateToken, changePassword);
 
 /**
  * @swagger
- * /logout:
+ * /api/logout:
  *   post:
  *     summary: Logout the user
  *     tags: [Users]
@@ -256,7 +256,7 @@ router.post("/logout", authenticateToken, logout);
 
 /**
  * @swagger
- * /movies:
+ * /api/movies:
  *   get:
  *     summary: Get all movies
  *     tags: [Movies]
@@ -313,7 +313,7 @@ router.get("/movies", getMovies);
 
 /**
  * @swagger
- * /movies:
+ * /api/movies:
  *   post:
  *     summary: Create a new movie
  *     tags: [Movies]
@@ -411,7 +411,7 @@ router.post("/movies", createMovie);
 
 /**
  * @swagger
- * /movie-types:
+ * /api/movie-types:
  *   get:
  *     summary: Get all movie types
  *     tags: [Movie Types]
@@ -442,7 +442,7 @@ router.get("/movie-types", getMovieTypes);
 
 /**
  * @swagger
- * /movie-types:
+ * /api/movie-types:
  *   post:
  *     summary: Create a new movie type
  *     tags: [Movie Types]
