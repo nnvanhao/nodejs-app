@@ -25,7 +25,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /create-user:
+ * /register:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
@@ -68,7 +68,7 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.post("/create-user", createUser);
+router.post("/register", createUser);
 
 /**
  * @swagger
