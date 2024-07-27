@@ -3,9 +3,16 @@ import { PrismaClient } from "@prisma/client";
 import routes from "./routes";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+var cors = require("cors");
 
 const app = express();
 const prisma = new PrismaClient();
+
+var corsOptions = {
+  origin: "*",
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use("/api", routes);
