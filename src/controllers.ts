@@ -160,12 +160,12 @@ export const changePassword = async (req: Request, res: Response) => {
   }
 };
 
-// Get all movies
 export const getMovies = async (req: Request, res: Response) => {
   try {
     const movies = await prisma.movie.findMany({
       include: {
-        type: true,
+        genres: true, // Include genres in the response
+        links: true, // Updated from movieLinks to links to match schema
       },
     });
     res.json(formatResponse("Movies retrieved successfully", movies));
@@ -175,133 +175,129 @@ export const getMovies = async (req: Request, res: Response) => {
   }
 };
 
-// Get all movie types
-export const getMovieTypes = async (req: Request, res: Response) => {
-  try {
-    const movieTypes = await prisma.movieType.findMany();
-    res.json(formatResponse("Movie types retrieved successfully", movieTypes));
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(formatResponse("Internal server error"));
-  }
-};
-
-// Create a movie type
-export const createMovieType = async (req: Request, res: Response) => {
-  const { name } = req.body;
-
-  if (!name) {
-    return res.status(400).json(formatResponse("Name is required"));
-  }
-
-  try {
-    // Check if a movie type with the same name already exists
-    const existingMovieType = await prisma.movieType.findUnique({
-      where: { name },
-    });
-
-    if (existingMovieType) {
-      return res.status(400).json(formatResponse("Movie type already exists"));
-    }
-
-    // Create new movie type
-    const movieType = await prisma.movieType.create({
-      data: { name },
-    });
-
-    res.json(formatResponse("Movie type created successfully", movieType));
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(formatResponse("Internal server error"));
-  }
-};
-
-// Get a movie type by ID
-export const getMovieTypeById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-
-  try {
-    const movieType = await prisma.movieType.findUnique({
-      where: { id },
-    });
-
-    if (!movieType) {
-      return res.status(404).json(formatResponse("Movie type not found"));
-    }
-
-    res.json(formatResponse("Movie type retrieved successfully", movieType));
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(formatResponse("Internal server error"));
-  }
-};
-
-// Create a movie
 export const createMovie = async (req: Request, res: Response) => {
   const {
     title,
+    originalTitle,
     description,
     releaseDate,
+    releaseYear,
     rating,
-    genre,
-    director,
+    tagline,
+    runtime,
     duration,
+    durationUnit,
     language,
+    languageCode,
     country,
     posterUrl,
+    cast,
+    imdbRating,
+    budget,
+    revenue,
+    boxOfficeGross,
+    trailerUrl,
+    releaseStatus,
+    synopsis,
+    awards,
+    productionCompanies,
+    movieType,
     typeId,
+    links,
+    genreIds, // Ensure this is included in the request body
   } = req.body;
 
   // Check required fields
-  if (!title || !releaseDate || !typeId) {
+  if (!title || !releaseDate || !typeId || !movieType || !genreIds) {
     return res
       .status(400)
-      .json(formatResponse("Title, release date, and type are required"));
+      .json(
+        formatResponse(
+          "Title, release date, type, movieType, and genreIds are required"
+        )
+      );
   }
 
   try {
-    // Verify if the movie type exists
-    const movieType = await prisma.movieType.findUnique({
-      where: { id: typeId },
+    // Verify if all genres exist
+    const genresExist = await prisma.genre.findMany({
+      where: {
+        id: {
+          in: genreIds,
+        },
+      },
     });
 
-    if (!movieType) {
-      return res.status(400).json(formatResponse("Invalid movie type"));
+    if (genresExist.length !== genreIds.length) {
+      return res
+        .status(400)
+        .json(formatResponse("One or more genres are invalid"));
     }
 
     // Create the movie
     const movie = await prisma.movie.create({
       data: {
         title,
+        originalTitle,
         description,
         releaseDate: new Date(releaseDate),
+        releaseYear,
         rating,
-        genre,
-        director,
+        tagline,
+        runtime,
         duration,
+        durationUnit,
         language,
+        languageCode,
         country,
         posterUrl,
-        type: { connect: { id: typeId } }, // Connect the movie to the type
+        cast,
+        imdbRating,
+        budget,
+        revenue,
+        boxOfficeGross,
+        trailerUrl,
+        releaseStatus,
+        synopsis,
+        awards,
+        productionCompanies,
+        movieType,
+        links: {
+          create: links || [], // Create movie links only if provided
+        },
+        genres: {
+          connect: genreIds.map((id: number) => ({ id })), // Connect genres
+        },
       },
       select: {
         id: true,
         title: true,
+        originalTitle: true,
         description: true,
         releaseDate: true,
+        releaseYear: true,
         rating: true,
-        genre: true,
-        director: true,
+        tagline: true,
+        runtime: true,
         duration: true,
+        durationUnit: true,
         language: true,
+        languageCode: true,
         country: true,
         posterUrl: true,
-        type: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+        cast: true,
+        imdbRating: true,
+        budget: true,
+        revenue: true,
+        boxOfficeGross: true,
+        trailerUrl: true,
+        releaseStatus: true,
+        synopsis: true,
+        awards: true,
+        productionCompanies: true,
+        movieType: true,
+        links: true,
+        genres: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -311,5 +307,161 @@ export const createMovie = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json(formatResponse("Internal server error"));
+  }
+};
+
+export const getMovieById = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const movie = await prisma.movie.findUnique({
+      where: { id },
+      include: {
+        genres: true, // Include genres in the response
+        links: true, // Updated from movieLinks to links to match schema
+      },
+    });
+
+    if (!movie) {
+      return res.status(404).json(formatResponse("Movie not found"));
+    }
+
+    res.json(formatResponse("Movie retrieved successfully", movie));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(formatResponse("Internal server error"));
+  }
+};
+
+export const updateMovie = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const {
+    title,
+    description,
+    releaseDate,
+    rating,
+    duration,
+    language,
+    country,
+    posterUrl,
+    links,
+    movieType,
+    genreIds,
+  } = req.body;
+
+  try {
+    // Verify if all genres exist
+    if (genreIds) {
+      const genresExist = await prisma.genre.findMany({
+        where: {
+          id: {
+            in: genreIds,
+          },
+        },
+      });
+
+      if (genresExist.length !== genreIds.length) {
+        return res
+          .status(400)
+          .json(formatResponse("One or more genres are invalid"));
+      }
+    }
+
+    // Update the movie
+    const updatedMovie = await prisma.movie.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        releaseDate: releaseDate ? new Date(releaseDate) : undefined,
+        rating,
+        duration,
+        language,
+        country,
+        posterUrl,
+        movieType, // Update the movieType
+        genres: genreIds
+          ? {
+              set: genreIds.map((id: number) => ({ id })), // Update genres
+            }
+          : undefined,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        releaseDate: true,
+        rating: true,
+        duration: true,
+        language: true,
+        country: true,
+        posterUrl: true,
+        links: true, // Will be updated separately
+        movieType: true,
+        genres: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    // Handle links separately
+    if (movieType === "SERIES") {
+      if (links) {
+        await prisma.movieLink.deleteMany({
+          where: { movieId: id },
+        });
+
+        await prisma.movieLink.createMany({
+          data: links.map((link: { url: string }) => ({
+            url: link.url,
+            movieId: id,
+          })),
+        });
+      }
+    }
+
+    res.json(formatResponse("Movie updated successfully", updatedMovie));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(formatResponse("Internal server error"));
+  }
+};
+
+export const deleteMovie = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    await prisma.movie.delete({
+      where: { id },
+    });
+
+    res.json(formatResponse("Movie deleted successfully"));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(formatResponse("Internal server error"));
+  }
+};
+
+// Function to create a genre
+export const createGenre = async (req: Request, res: Response) => {
+  const { name } = req.body;
+
+  // Check required fields
+  if (!name) {
+    return res.status(400).json({ message: "Name is required" });
+  }
+
+  try {
+    // Create the genre
+    const genre = await prisma.genre.create({
+      data: {
+        name,
+      },
+    });
+
+    res.status(201).json({ message: "Genre created successfully", genre });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

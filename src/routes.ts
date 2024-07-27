@@ -7,9 +7,8 @@ import {
   getUserInfo,
   changePassword,
   getMovies,
-  getMovieTypes,
   createMovie,
-  createMovieType,
+  createGenre,
 } from "./controllers";
 import { authenticateToken } from "./middleware";
 
@@ -311,174 +310,9 @@ router.post("/logout", authenticateToken, logout);
  */
 router.get("/movies", getMovies);
 
-/**
- * @swagger
- * /api/movies:
- *   post:
- *     summary: Create a new movie
- *     tags: [Movies]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *                 example: Movie Title
- *               description:
- *                 type: string
- *                 example: A brief description of the movie
- *               releaseDate:
- *                 type: string
- *                 format: date
- *                 example: 2024-07-27
- *               rating:
- *                 type: number
- *                 example: 8.5
- *               genre:
- *                 type: string
- *                 example: Action
- *               director:
- *                 type: string
- *                 example: Director Name
- *               duration:
- *                 type: integer
- *                 example: 120
- *               language:
- *                 type: string
- *                 example: English
- *               country:
- *                 type: string
- *                 example: USA
- *               posterUrl:
- *                 type: string
- *                 example: http://example.com/poster.jpg
- *               typeId:
- *                 type: integer
- *                 example: 1
- *     responses:
- *       200:
- *         description: Movie created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Movie created successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     title:
- *                       type: string
- *                     description:
- *                       type: string
- *                     releaseDate:
- *                       type: string
- *                       format: date
- *                     rating:
- *                       type: number
- *                     genre:
- *                       type: string
- *                     director:
- *                       type: string
- *                     duration:
- *                       type: integer
- *                     language:
- *                       type: string
- *                     country:
- *                       type: string
- *                     posterUrl:
- *                       type: string
- *                     type:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                         name:
- *                           type: string
- *       400:
- *         description: Invalid request
- *       500:
- *         description: Internal server error
- */
 router.post("/movies", createMovie);
 
-/**
- * @swagger
- * /api/movie-types:
- *   get:
- *     summary: Get all movie types
- *     tags: [Movie Types]
- *     responses:
- *       200:
- *         description: List of movie types
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Movie types retrieved successfully
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       name:
- *                         type: string
- *       500:
- *         description: Internal server error
- */
-router.get("/movie-types", getMovieTypes);
-
-/**
- * @swagger
- * /api/movie-types:
- *   post:
- *     summary: Create a new movie type
- *     tags: [Movie Types]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: Action
- *     responses:
- *       200:
- *         description: Movie type created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Movie type created successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     name:
- *                       type: string
- *       400:
- *         description: Invalid request
- *       500:
- *         description: Internal server error
- */
-router.post("/movie-types", createMovieType);
+// Route to create a genre
+router.post("/genres", createGenre);
 
 export default router;

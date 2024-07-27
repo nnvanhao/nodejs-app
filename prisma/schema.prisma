@@ -23,25 +23,52 @@ model User {
 }
 
 model Movie {
-  id          Int        @id @default(autoincrement())
-  title       String
-  description String?
-  releaseDate DateTime
-  rating      Float?
-  genre       String?
-  director    String?
-  duration    Int?       // Duration in minutes
-  language    String?    // Language of the movie
-  country     String?    // Country of origin
-  posterUrl   String?    // URL to the movie poster
-  typeId      Int
-  type        MovieType  @relation(fields: [typeId], references: [id])
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id                Int         @id @default(autoincrement())
+  title             String
+  originalTitle     String?     // Title in its original language
+  description       String?
+  releaseDate       DateTime
+  releaseYear       Int?
+  rating            Float?
+  tagline           String?     // Short, catchy phrase or slogan
+  runtime           Int?        // Total runtime in minutes
+  duration          Int?        // Duration in minutes
+  durationUnit      String?     // Unit of duration (e.g., "minutes", "hours")
+  language          String?     // Language of the movie
+  languageCode      String?     // Language code for internationalization
+  country           String?     // Country of origin
+  posterUrl         String?     // URL to the movie poster
+  cast              String?     // List of cast members (comma-separated or JSON array)
+  imdbRating        Float?      // IMDb rating
+  budget            Float?      // Budget of the movie
+  revenue           Float?      // Box office revenue
+  boxOfficeGross    Float?      // Gross earnings from the box office
+  trailerUrl        String?     // URL to the movie's trailer
+  releaseStatus     String?     // Status of the movie's release (e.g., released, upcoming)
+  synopsis          String?     // Brief summary or synopsis
+  awards            String?     // Awards won by the movie
+  productionCompanies String?   // List of production companies (comma-separated or JSON array)
+  movieType         MovieTypeEnum // New field to categorize as MOVIE or SERIES
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  links             MovieLink[] // New field for links
+  genres            Genre[]     @relation("MovieGenres") // Updated to use named relation
 }
 
-model MovieType {
+model MovieLink {
+  id       Int    @id @default(autoincrement())
+  url      String
+  movieId  Int
+  movie    Movie  @relation(fields: [movieId], references: [id])
+}
+
+model Genre {
   id    Int     @id @default(autoincrement())
   name  String  @unique
-  movies Movie[]
+  movies Movie[] @relation("MovieGenres") // Updated to use named relation
+}
+
+enum MovieTypeEnum {
+  MOVIE
+  SERIES
 }
